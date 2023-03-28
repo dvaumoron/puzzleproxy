@@ -37,13 +37,13 @@ func main() {
 		log.Fatal("Missing environment variable")
 	}
 
-	var p tcpproxy.Proxy
+	var proxy tcpproxy.Proxy
 	for _, port := range strings.Split(ports, ",") {
 		port = cleanPort(port)
-		p.AddRoute(port, tcpproxy.To(forwardHost+port))
+		proxy.AddRoute(port, tcpproxy.To(forwardHost+port))
 	}
 
-	if err := p.Run(); err != nil {
+	if err := proxy.Run(); err != nil {
 		log.Println("An error occurred :", err)
 	}
 }
