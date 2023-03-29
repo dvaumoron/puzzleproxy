@@ -1,4 +1,4 @@
-# puzzleproxy
+# Puzzleproxy
 
 A basic tcp proxy with static rules.
 
