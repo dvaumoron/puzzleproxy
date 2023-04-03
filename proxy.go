@@ -19,6 +19,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -31,21 +32,35 @@ func main() {
 		log.Println("Loaded .env file")
 	}
 
-	forwardHost := os.Getenv("FORWARD_HOST")
+	forwardHostsStr := os.Getenv("FORWARD_HOSTS")
 	ports := os.Getenv("SERVICE_PORTS")
-	if forwardHost == "" || ports == "" {
+	if forwardHostsStr == "" || ports == "" {
 		log.Fatal("Missing environment variable")
 	}
 
 	var proxy tcpproxy.Proxy
-	for _, port := range strings.Split(ports, ",") {
+	forwardHosts := strings.Split(forwardHostsStr, ",")
+	for index, port := range strings.Split(ports, ",") {
 		port = cleanPort(port)
-		proxy.AddRoute(port, tcpproxy.To(forwardHost+port))
+		proxy.AddRoute(port, tcpproxy.To(strings.TrimSpace(forwardHosts[index])))
 	}
+
+	bgServeHttp()
 
 	if err := proxy.Run(); err != nil {
 		log.Println("An error occurred :", err)
 	}
+}
+
+func bgServeHttp() {
+	responseData := []byte("Hello World !")
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write(responseData)
+	})
+
+	go func() {
+		http.ListenAndServe(cleanPort(os.Getenv("SERVICE_PORT")), nil)
+	}()
 }
 
 func cleanPort(port string) string {
