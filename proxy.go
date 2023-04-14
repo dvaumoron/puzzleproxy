@@ -35,7 +35,7 @@ func main() {
 	forwardHostsStr := os.Getenv("FORWARD_HOSTS")
 	ports := os.Getenv("SERVICE_PORTS")
 	if forwardHostsStr == "" || ports == "" {
-		log.Fatal("Missing environment variable")
+		log.Fatalln("Missing environment variable")
 	}
 
 	var proxy tcpproxy.Proxy
